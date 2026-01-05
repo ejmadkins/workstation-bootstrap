@@ -123,8 +123,14 @@ The `.zshrc` file in `resources/zsh` is not hardcoded. It uses environment varia
 
 ### Custom Helper Functions
 
-The image includes several custom Zsh functions (defined in `.zshrc`):
 
+
+The image includes several custom Zsh functions and aliases (defined in `.zshrc`):
 * `ginit <name>`: Initializes a repo, creates a GitLab project, and pushes the first commit.
-* `ask`: Uses Gemini CLI to explain the last command or specific history items.
-* `browse`: A fuzzy-finder file browser with AI summaries in the preview window.
+* `gcommit` (alias `gca`): Asks Gemini to write a Git commit message for staged changes, then allows the user to confirm and commit.
+* `gmr`: Automatically creates a GitLab Merge Request for the current branch with an AI-generated title and description based on the changes.
+* `gclean`: Switches to the `main` branch, pulls the latest changes, and deletes locally merged branches.
+* `gsave`: Stages all changes, uses Gemini to create a commit message (via `gcommit`), and pushes the changes.
+* `ask`: Uses Gemini CLI to explain the last command or specific history items (alias for `explain-history`).
+* `browse`: A fuzzy-finder file browser with AI summaries in the preview window (alias for `gemini-browse`).
+* `review <filename>` (alias `check`): Sends the content of a specified file to Gemini for a code review, highlighting potential bugs, security issues, or performance improvements.
