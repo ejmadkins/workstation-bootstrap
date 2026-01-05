@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Auto-Start Everything",
+            "dependsOn": [
+                "Launch Gemini CLI",
+                "Open Standard Terminal"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "label": "Launch Gemini CLI",
+            "type": "shell",
+            "command": "gemini",
+            "presentation": {
+                "group": "startup",
+                "panel": "dedicated",
+                "focus": true,
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "Open Standard Terminal",
+            "type": "shell",
+            "command": "zsh",
+            "presentation": {
+                "group": "startup",
+                "panel": "dedicated",
+                "focus": false,
+                "reveal": "always"
+            }
+        }
+    ]
+}

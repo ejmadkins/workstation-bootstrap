@@ -1,0 +1,47 @@
+# workstation.conf.example
+# -------------------------------------------------------------
+# INSTRUCTIONS:
+# 1. Copy this file to 'workstation.conf'
+# 2. Update the values below with your specific project details
+# -------------------------------------------------------------
+
+# -------------------------------------------------------------
+# GLOBAL PROJECT SETTINGS
+# -------------------------------------------------------------
+PROJECT_ID="your-gcp-project-id"
+REGION="europe-west2"
+
+# -------------------------------------------------------------
+# WORKSTATION CONFIGURATION
+# -------------------------------------------------------------
+CLUSTER_ID="cluster-main"
+CONFIG_ID="config-main"
+WORKSTATION_ID="my-workstation-dev"
+
+# Machine Specs
+MACHINE_TYPE="e2-standard-8"
+POOL_SIZE=1             # Number of instances to keep pre-warmed
+IDLE_TIMEOUT=21600      # 6 hours (in seconds)
+RUNNING_TIMEOUT=64800   # 18 hours (in seconds)
+
+# -------------------------------------------------------------
+# CUSTOM IMAGE BUILD SETTINGS
+# -------------------------------------------------------------
+REPO_NAME="workstation-images"
+IMAGE_NAME="custom-workstation"
+
+# The Google base image to start from (e.g. code-oss, intellij, etc.)
+BASE_IMAGE="us-central1-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest"
+
+# -------------------------------------------------------------
+# NETWORK SETTINGS (Leave default unless you have a custom VPC)
+# -------------------------------------------------------------
+NETWORK_FULL="projects/$PROJECT_ID/global/networks/default"
+SUBNET_FULL="projects/$PROJECT_ID/regions/$REGION/subnetworks/default"
+
+# -------------------------------------------------------------
+# GIT & GITLAB CONFIGURATION
+# -------------------------------------------------------------
+GIT_NAME="Your Name"
+GIT_EMAIL="your.email@example.com"
+GITLAB_GROUP="your-gitlab-group/subgroup"

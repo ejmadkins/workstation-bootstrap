@@ -1,0 +1,25 @@
+{
+  "ide": {
+    "hasSeenNudge": true,
+    "enabled": true
+  },
+  "security": {
+    "auth": {
+      "selectedType": "gemini-api-key"
+    }
+  },
+  "general": {
+    "previewFeatures": true,
+    "enablePromptCompletion": true
+  },
+  "ui": {
+    "footer": {
+      "hideModelInfo": true
+    }
+  },
+  "tools": {
+    "shell": {
+      "showColor": true
+    }
+  }
+}
