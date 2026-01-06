@@ -36,6 +36,8 @@ This project builds a custom Docker image (based on `code-oss`) with a pre-confi
         UserKnownHostsFile /dev/null
     ```
 
+4.  **GitLab Personal Access Token**: Needed for `glab` CLI and custom GitLab helper functions (e.g., `ginit`, `gmr`). Create one [here](https://gitlab.com/-/user_settings/personal_access_tokens) and ensure you add the `write_repository` and `api` scopes.
+
 ---
 
 ## ⚙️ Setup
