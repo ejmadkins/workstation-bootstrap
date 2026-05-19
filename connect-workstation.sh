@@ -74,6 +74,29 @@ LOCAL_PORT=1025
 SSH_HOST_ALIAS="my-cloud-workstation" # Must match your ~/.ssh/config Host
 REMOTE_FOLDER="/home/user"            # Folder to open in VS Code
 
+# --- SSH CONFIGURATION CHECK ---
+# Ensures the SSH alias exists so VS Code can resolve the hostname
+echo -n -e "Verifying SSH configuration..."
+SSH_CONFIG="$HOME/.ssh/config"
+mkdir -p "$HOME/.ssh"
+touch "$SSH_CONFIG"
+
+if ! grep -q "Host $SSH_HOST_ALIAS" "$SSH_CONFIG"; then
+    cat <<EOF >> "$SSH_CONFIG"
+
+# --- Cloud Workstation Alias (Added by script) ---
+Host $SSH_HOST_ALIAS
+  HostName 127.0.0.1
+  Port $LOCAL_PORT
+  User user
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+EOF
+    echo -e "\r✅ SSH configuration... Updated!     "
+else
+    echo -e "\r✅ SSH configuration... OK!          "
+fi
+
 echo -e "Target: ${BOLD}$WORKSTATION_ID${NC} ($REGION)"
 
 # 1. Check and Start Workstation

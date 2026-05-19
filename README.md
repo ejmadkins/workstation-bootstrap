@@ -23,15 +23,14 @@ This project builds a custom Docker image (based on `code-oss`) with a pre-confi
 
 1.  **Google Cloud SDK (`gcloud`)**: Installed and authenticated locally.
 2.  **Visual Studio Code**: Installed locally.
-3.  **Local SSH Config**: You must have an entry in your local `~/.ssh/config` that matches the alias in the connection script (default: `my-cloud-workstation`).
+3.  **Local SSH Config**: The connection script (`connect-workstation.sh`) will automatically add an entry to your local `~/.ssh/config` if it's missing. If you want to configure it manually, it should match the alias in the connection script (default: `my-cloud-workstation`).
 
-    **Add this to your local `~/.ssh/config`:**
+    **Manual `~/.ssh/config` entry:**
     ```text
     Host my-cloud-workstation
         HostName 127.0.0.1
         Port 1025
         User user
-        IdentityFile ~/.ssh/google_compute_engine
         StrictHostKeyChecking no
         UserKnownHostsFile /dev/null
     ```

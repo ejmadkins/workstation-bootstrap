@@ -147,8 +147,13 @@ ENV GITLAB_GROUP="$GITLAB_GROUP"
 
 # --- SYSTEM TOOLS ---
 RUN apt-get update && apt-get install -y \
-    zsh git curl jq wget unzip python3-pip \
+    zsh git curl jq wget unzip python3-pip bat \
+    nodejs npm \
     && rm -rf /var/lib/apt/lists/*
+RUN ln -s /usr/bin/batcat /usr/local/bin/bat
+
+# --- GEMINI CLI ---
+RUN npm install -g @google/gemini-cli@latest
 
 # --- GITLAB CLI ---
 RUN curl -LO https://gitlab.com/gitlab-org/cli/-/releases/v1.49.0/downloads/glab_1.49.0_linux_amd64.deb && \
