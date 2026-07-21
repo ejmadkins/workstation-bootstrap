@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e # Exit immediately on error
 
+# --- CORPORATE PROXY BYPASS ---
+# On Google-managed corporate Macs, context-aware proxy settings can interfere with
+# Workstations API endpoints. We disable them for this script to ensure reliable API routing.
+export CLOUDSDK_CONTEXT_AWARE_USE_CLIENT_CERTIFICATE=false
+export CLOUDSDK_CONTEXT_AWARE_USE_ECP_HTTP_PROXY=false
+export CLOUDSDK_CONTEXT_AWARE_USE_MTLS_FOR_GRPC=false
+export GOOGLE_API_CERTIFICATE_CONFIG=""
+
+
 # --- COLORS & STYLING ---
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -55,6 +64,16 @@ run_step() {
     fi
 }
 
+# --- PARSE COMMAND LINE ARGUMENTS ---
+CLI_MODE=false
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --cli|-c) CLI_MODE=true ;;
+        *) echo -e "${RED}❌ Unknown argument: $1${NC}"; exit 1 ;;
+    esac
+    shift
+done
+
 # --- LOAD CONFIGURATION ---
 CONFIG_FILE="./workstation.conf"
 
@@ -103,7 +122,7 @@ echo -e "Target: ${BOLD}$WORKSTATION_ID${NC} ($REGION)"
 echo -n -e "Checking workstation status..."
 STATE=$(gcloud workstations describe $WORKSTATION_ID \
     --project=$PROJECT_ID --region=$REGION --cluster=$CLUSTER_ID --config=$CONFIG_ID \
-    --format="value(state)" 2>/dev/null)
+    --format="value(state)" 2>/dev/null || true)
 
 if [[ "$STATE" == *"RUNNING"* ]]; then
     echo -e "\r✅ Workstation is already RUNNING.    "
@@ -125,12 +144,16 @@ pkill -f "start-tcp-tunnel.*$LOCAL_PORT" >/dev/null 2>&1 || true
 # 3. Start Tunnel
 echo -n -e "Opening tunnel on port ${BOLD}$LOCAL_PORT${NC}..."
 
+TUNNEL_LOG=$(mktemp)
 # We start this in background manually because we need the PID to stay alive
 gcloud workstations start-tcp-tunnel \
   --project=$PROJECT_ID --region=$REGION --cluster=$CLUSTER_ID --config=$CONFIG_ID \
   --local-host-port=:$LOCAL_PORT \
-  $WORKSTATION_ID 22 >/dev/null 2>&1 &
+  $WORKSTATION_ID 22 >"$TUNNEL_LOG" 2>&1 &
 TUNNEL_PID=$!
+
+# Automatically kill tunnel and clean up log file on exit/interrupt
+trap 'kill $TUNNEL_PID 2>/dev/null || true; rm -f "$TUNNEL_LOG" 2>/dev/null' EXIT INT TERM
 
 # 4. Wait for bridge (Custom Spinner Loop)
 TIMEOUT=30
@@ -139,6 +162,16 @@ spinstr='|/-\'
 
 # FIX: Added >/dev/null 2>&1 to silence 'Connection succeeded!' output
 while ! nc -z 127.0.0.1 $LOCAL_PORT >/dev/null 2>&1; do
+    # Check if the tunnel process is still running
+    if ! ps -p $TUNNEL_PID >/dev/null; then
+        echo -e "\r❌ ${RED}Tunnel process terminated unexpectedly.${NC}"
+        echo "-------------------------------------------------------"
+        echo -e "${YELLOW}Tunnel Log:${NC}"
+        cat "$TUNNEL_LOG"
+        echo "-------------------------------------------------------"
+        exit 1
+    fi
+
     temp=${spinstr#?}
     # This overwrites the 'Opening tunnel...' line creates a smooth animation
     printf "\r${BLUE}[%c]${NC} Waiting for tunnel bridge..." "$spinstr"
@@ -151,25 +184,42 @@ while ! nc -z 127.0.0.1 $LOCAL_PORT >/dev/null 2>&1; do
     
     if [ $COUNT -ge $TIMEOUT ]; then
         echo -e "\r❌ ${RED}Timed out waiting for tunnel.${NC}"
-        kill $TUNNEL_PID
         exit 1
     fi
 done
 echo -e "\r✅ Tunnel Connected!             "
+rm -f "$TUNNEL_LOG"
 
-# 5. Launch VS Code
-run_step "Launching Visual Studio Code" code --remote ssh-remote+$SSH_HOST_ALIAS $REMOTE_FOLDER
 
-echo ""
-echo "-------------------------------------------------------"
-echo -e "🎉 ${GREEN}${BOLD}Session Active!${NC}"
-echo "-------------------------------------------------------"
-echo -e "🔌 Port:         ${BOLD}$LOCAL_PORT${NC}"
-echo -e "📂 Remote Path:  $REMOTE_FOLDER"
-echo "-------------------------------------------------------"
-echo -e "${YELLOW}⚠️  KEEP THIS TERMINAL OPEN.${NC}"
-echo "   Closing it will kill the tunnel."
-echo "-------------------------------------------------------"
+# 5. Launch Session
+if [ "$CLI_MODE" = true ]; then
+    echo -e "Connecting to remote CLI session via ${BOLD}tmux${NC}..."
+    echo -e "Press ${BOLD}Ctrl+D${NC} or exit tmux to close session and kill tunnel."
+    echo ""
+    
+    # Establish pseudo-terminal and start/attach remote tmux session with agy and zsh
+    ssh -t "$SSH_HOST_ALIAS" 'tmux has-session -t workstation 2>/dev/null && tmux attach-session -t workstation || {
+        tmux new-session -d -s workstation -n "antigravity" && \
+        tmux send-keys -t workstation:0 "agy" C-m && \
+        tmux split-window -h -t workstation:0 && \
+        tmux send-keys -t workstation:0 "zsh" C-m && \
+        tmux select-pane -t workstation:0.1 && \
+        tmux attach-session -t workstation
+    }'
+else
+    run_step "Launching Visual Studio Code" code --remote ssh-remote+$SSH_HOST_ALIAS $REMOTE_FOLDER
 
-# Wait for tunnel process so the script doesn't exit
-wait $TUNNEL_PID
+    echo ""
+    echo "-------------------------------------------------------"
+    echo -e "🎉 ${GREEN}${BOLD}Session Active!${NC}"
+    echo "-------------------------------------------------------"
+    echo -e "🔌 Port:         ${BOLD}$LOCAL_PORT${NC}"
+    echo -e "📂 Remote Path:  $REMOTE_FOLDER"
+    echo "-------------------------------------------------------"
+    echo -e "${YELLOW}⚠️  KEEP THIS TERMINAL OPEN.${NC}"
+    echo "   Closing it will kill the tunnel."
+    echo "-------------------------------------------------------"
+
+    # Wait for tunnel process so the script doesn't exit
+    wait $TUNNEL_PID
+fi

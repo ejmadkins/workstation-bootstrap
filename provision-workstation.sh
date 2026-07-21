@@ -147,7 +147,7 @@ ENV GITLAB_GROUP="$GITLAB_GROUP"
 
 # --- SYSTEM TOOLS ---
 RUN apt-get update && apt-get install -y \
-    zsh git curl jq wget unzip python3-pip bat \
+    zsh git curl jq wget unzip python3-pip bat tmux \
     nodejs npm \
     && rm -rf /var/lib/apt/lists/*
 RUN ln -s /usr/bin/batcat /usr/local/bin/bat
