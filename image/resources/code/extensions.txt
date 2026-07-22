@@ -1,0 +1,1 @@
+# Add any VS Code extension IDs here (one per line) to pre-install them at build-time.

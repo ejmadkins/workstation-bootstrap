@@ -4,7 +4,7 @@
         {
             "label": "Auto-Start Everything",
             "dependsOn": [
-                "Launch Gemini CLI",
+                "Launch Antigravity CLI",
                 "Open Standard Terminal"
             ],
             "group": {
@@ -16,9 +16,9 @@
             }
         },
         {
-            "label": "Launch Gemini CLI",
+            "label": "Launch Antigravity CLI",
             "type": "shell",
-            "command": "gemini",
+            "command": "agy",
             "presentation": {
                 "group": "startup",
                 "panel": "dedicated",
