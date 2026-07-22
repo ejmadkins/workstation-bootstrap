@@ -1,0 +1,2 @@
+bucket = "am-tfstate"
+impersonate_service_account = "terraform@am-tfstate.iam.gserviceaccount.com"

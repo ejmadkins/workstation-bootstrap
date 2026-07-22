@@ -1,0 +1,12 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', '${_IMAGE_NAME}:${SHORT_SHA}', '-t', '${_IMAGE_NAME}:latest', '.']
+  dir: 'image'
+
+images:
+- '${_IMAGE_NAME}:${SHORT_SHA}'
+- '${_IMAGE_NAME}:latest'
+
+# used for custom cloud build SA
+options:
+  logging: CLOUD_LOGGING_ONLY
