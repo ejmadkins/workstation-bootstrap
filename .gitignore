@@ -8,4 +8,7 @@ workstation.conf
 *.tfstate
 *.tfstate.*
 .terraform.tfstate.lock.info
+*.tfvars
+gcs.tfbackend
+
 
