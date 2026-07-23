@@ -26,7 +26,7 @@ RUN echo customising image... && \
     unzip awscliv2.zip && \
     ./aws/install && \
     # Install the Pulumi SDK, including the cli and language runtimes.
-    curl -fsSL https://get.pulumi.com/ | bash -s -- --version $PULUMI_VERSION && \
+    curl -fsSL https://get.pulumi.com/ | bash && \
     mv ~/.pulumi/bin/* /usr/bin && \
     # update and upgrade any system packages
     apt-get update && apt-get -y upgrade && \
