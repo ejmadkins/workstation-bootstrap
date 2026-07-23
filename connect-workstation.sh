@@ -245,7 +245,7 @@ else
     
     # Use AppleScript to open a new Terminal window, change to the current directory, and run the script with --cli
     CURRENT_DIR=$(pwd)
-    osascript -e "tell application \"Terminal\" to do script \"cd '$CURRENT_DIR' && ./connect-workstation.sh --cli\"" >/dev/null 2>&1
+    osascript -e "tell application \"Terminal\" to do script \"echo; cd '$CURRENT_DIR' && ./connect-workstation.sh --cli\"" >/dev/null 2>&1
 
     echo ""
     echo "-------------------------------------------------------"
