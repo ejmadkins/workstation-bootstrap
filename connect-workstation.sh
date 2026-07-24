@@ -212,7 +212,7 @@ if [ "$MODE" = "cli" ]; then
         cd /home/user 2>/dev/null;
         tmux has-session -t workstation 2>/dev/null && tmux attach-session -t workstation || {
             tmux new-session -d -s workstation -n 'antigravity' -c /home/user && \
-            tmux send-keys -t workstation:0 'agy' C-m && \
+            tmux send-keys -t workstation:0 'selected=\$(find /home/user/projects -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf --prompt="Select a Project > " --height=40% --reverse --border); [ -n "\$selected" ] && cd "\$selected"; agy' C-m && \
             tmux split-window -h -t workstation:0 -c /home/user && \
             tmux send-keys -t workstation:0 'zsh' C-m && \
             tmux select-pane -t workstation:0.1 && \
